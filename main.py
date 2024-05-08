@@ -73,7 +73,7 @@ if __name__ == "__main__":
         f"Starting experiment {args.experiment.upper()} with query size >= {args.min_utterances_for_query}"
     )
     logger.info("Loading data...")
-    corpus = ExplicitQuoteCorpus("/data/datasets/project-dialogism-novel-corpus/data/")
+    corpus = ExplicitQuoteCorpus(args.data_path)
     logger.info(f"Loaded quotes of {len(corpus)} novels")
 
     logger.info("Starting sampling .....")
