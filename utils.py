@@ -54,7 +54,7 @@ def luar_tokenize(tokenizer, quotes, batch_first=False, max_length=128):
     return tokens
 
 
-def get_model(model_name):
+def get_model(model_name, path_to_ckpt = None):
     if model_name == "semantics":
         model = SentenceTransformer("sentence-transformers/all-mpnet-base-v2")
         model.max_seq_length = 128
@@ -82,8 +82,9 @@ def get_model(model_name):
     elif model_name == "drama_luar":
         model = Transformer(model_args)
         tokenizer = AutoTokenizer.from_pretrained(model_args.model_name)
-        state_dict=torch.load(PATH_TO_CKPT)
-        model.load_state_dict(state_dict["state_dict"])
+        if path_to_ckpt is not None : 
+            state_dict=torch.load(path_to_ckpt)
+            model.load_state_dict(state_dict["state_dict"])
         model.eval()
         return model, tokenizer
     else:

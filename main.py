@@ -48,6 +48,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--model", type=str, help="model to test", default="all"
+    )
+    parser.add_argument(
+        "--path_to_ckpt", type=str, help="path to checkpoint", default=None
     )# parser.add_argument(
     #     "--min_quote_length",
     #     type=int,
@@ -157,7 +160,7 @@ if __name__ == "__main__":
         models = [args.model]
         
     for model_name in models:
-        model, tokenizer = get_model(model_name)
+        model, tokenizer = get_model(model_name, path_to_ckpt=path_to_ckpt)
         model = model.to(device)
         model.device = device
         model_scores = {}
