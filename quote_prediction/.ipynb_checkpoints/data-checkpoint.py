@@ -909,6 +909,7 @@ class ExplicitQuoteCorpus:
         novel_path = os.path.abspath(
             os.path.join(
                 data_path,
+                os.pardir,
                 "PDNC-Novel-Index.csv",
             )
         )
@@ -919,6 +920,7 @@ class ExplicitQuoteCorpus:
         author_path = os.path.abspath(
             os.path.join(
                 data_path,
+                os.pardir,
                 "PDNC-Author-Index.csv",
             )
         )
