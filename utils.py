@@ -35,7 +35,7 @@ def stat_with_nones(l, stat="mean"):
         return np.std([i for i in l if i is not None])
 
 
-def luar_tokenize(tokenizer, quotes, batch_first=False, max_length=128):
+def luar_tokenize(tokenizer, quotes, batch_first=False, max_length=64):
     tokens = tokenizer(
         quotes,
         max_length=max_length,
@@ -57,11 +57,11 @@ def luar_tokenize(tokenizer, quotes, batch_first=False, max_length=128):
 def get_model(model_name, path_to_ckpt = None):
     if model_name == "semantics":
         model = SentenceTransformer("sentence-transformers/all-mpnet-base-v2")
-        model.max_seq_length = 128
+        model.max_seq_length = 64
         return model, None
     elif model_name == "stel":
         model = SentenceTransformer("AnnaWegmann/Style-Embedding")
-        model.max_seq_length = 128
+        model.max_seq_length = 64
         return model, None
     elif model_name == "emotions":
         tokenizer = AutoTokenizer.from_pretrained("SamLowe/roberta-base-go_emotions")
