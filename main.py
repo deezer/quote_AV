@@ -160,7 +160,7 @@ if __name__ == "__main__":
         models = [args.model]
         
     for model_name in models:
-        model, tokenizer = get_model(model_name, path_to_ckpt=path_to_ckpt)
+        model, tokenizer = get_model(model_name, path_to_ckpt=args.path_to_ckpt)
         model = model.to(device)
         model.device = device
         model_scores = {}
