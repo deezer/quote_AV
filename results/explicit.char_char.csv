@@ -1,0 +1,5 @@
+,AUC,Recall@1,Recall@3,Recall@8,MRR
+semantics,58.3 \small{(9.3)},5.4 \small{(12.5)},13.1 \small{(19.0)},23.5 \small{(24.4)},
+stel,54.8 \small{(6.5)},3.9 \small{(6.2)},8.1 \small{(14.1)},22.4 \small{(26.0)},
+emotions,53.9 \small{(6.1)},2.8 \small{(6.9)},10.2 \small{(16.5)},20.3 \small{(22.7)},
+luar,56.3 \small{(6.2)},4.9 \small{(8.7)},11.6 \small{(18.3)},26.0 \small{(29.0)},

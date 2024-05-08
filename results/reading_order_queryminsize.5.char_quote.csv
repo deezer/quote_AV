@@ -1,0 +1,5 @@
+,AUC,AUC - 1,AUC - 5,AUC - 10,AUC - 20,AUC - 50,AUC - 100
+semantics,,55.3 \small{(4.1)},57.5 \small{(3.6)},58.0 \small{(4.1)},58.0 \small{(3.9)},58.4 \small{(3.9)},58.6 \small{(3.9)}
+stel,,51.4 \small{(3.8)},52.7 \small{(3.6)},53.5 \small{(3.4)},54.4 \small{(3.5)},54.5 \small{(3.1)},54.3 \small{(3.2)}
+emotions,,51.4 \small{(2.7)},50.8 \small{(3.3)},50.7 \small{(3.8)},51.2 \small{(3.5)},51.0 \small{(3.6)},51.0 \small{(3.6)}
+luar,,54.7 \small{(3.0)},55.5 \small{(3.5)},55.8 \small{(3.6)},56.4 \small{(3.5)},56.4 \small{(3.4)},56.4 \small{(3.3)}
