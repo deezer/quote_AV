@@ -1,5 +1,5 @@
 from sklearn.datasets import make_gaussian_quantiles
-from quote_prediction.data import ExplicitQuoteCorpus
+from data import ExplicitQuoteCorpus
 import numpy as np
 import torch
 import os
@@ -35,10 +35,16 @@ if __name__ == "__main__":
         help="type of experiment. one of (chapterwise, explicit, reading_order)",
     )
     parser.add_argument(
+        "--experiment_name",
+        type=str,
+        default = "experiment",
+        help="name of the experiemnt",
+    )
+    parser.add_argument(
         "--data_path",
         type=str,
         help="path to PDNC data",
-        default="/data/datasets/project-dialogism-novel-corpus/data/",
+        default="project-dialogism-novel-corpus/data/",
     )
     parser.add_argument(
         "--result_path", type=str, help="path to result folder", default="results/"
@@ -50,24 +56,15 @@ if __name__ == "__main__":
         "--model", type=str, help="model to test", default="all"
     )
     parser.add_argument(
-        "--path_to_ckpt", type=str, help="path to checkpoint", default=None
-    )# parser.add_argument(
-    #     "--min_quote_length",
-    #     type=int,
-    #     default=0,
-    #     help="Minimum number of tokens for a quote to be considered.",
-    # )
-    # parser.add_argument(
-    #     "--min_speakers_for_eval",
-    #     type=int,
-    #     default=2,
-    #     help="Minimum number of speakers in novel for character-character evaluation",
-    # )
+        "--huggingface_model", type=str, help="path to a huggingface model", default=None
+    )
+
     args = parser.parse_args()
 
     if not os.path.exists(args.result_path):
         os.makedirs(args.result_path)
 
+    ## Default to GPU inference
     device = (
         torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
     )
@@ -120,14 +117,14 @@ if __name__ == "__main__":
                 ),
                 "chapterwise",
             ),
-            (
-                corpus.chapterwise_AV_samples(
-                    train_with_explicit=True,
-                    test_without_explicit=True,
-                    min_utterances_for_anchor=args.min_utterances_for_query,
-                ),
-                "explicit_to_other",
-            ),
+            # (
+            #     corpus.chapterwise_AV_samples(
+            #         train_with_explicit=True,
+            #         test_without_explicit=True,
+            #         min_utterances_for_anchor=args.min_utterances_for_query,
+            #     ),
+            #     "explicit_to_other",
+            # ),
             (
                 corpus.chapterwise_AV_samples(
                     train_with_explicit=True,
@@ -152,21 +149,28 @@ if __name__ == "__main__":
 
     all_scores = defaultdict(lambda: defaultdict(dict))
     
-    if args.model == "all" : 
-        models = ["semantics", "stel", "emotions", "luar", "drama_luar"]
+    is_hgface = False
+    if args.huggingface_model is not None : 
+        models = [args.huggingface_model]
+        is_hgface = True  
+    elif args.model == "all" : 
+            models = ["semantics", "stel", "emotions", "luar"]
     elif "+" in args.model: 
         models = args.model.split("+")
     else : 
         models = [args.model]
         
     for model_name in models:
-        model, tokenizer = get_model(model_name, path_to_ckpt=args.path_to_ckpt)
+        model, tokenizer = get_model(model_name, is_hgface=is_hgface)
         model = model.to(device)
-        model.device = device
+        try :
+            model.device = device
+        except : 
+            pass
         model_scores = {}
         model_quoted_scores = {}
 
-        if "luar" not in model_name:
+        if all(["luar" not in model_name, not is_hgface ]):
             logger.info(f" PROCESSING QUOTES ---- Model: {model_name.upper()}")
             quote_embeddings = process_quotes(
                 corpus["quotes"], model_name, model, tokenizer
@@ -250,12 +254,12 @@ if __name__ == "__main__":
     ## Save results
     for exp_name, result_dict in all_scores.items():
         logger.info(
-            f"Saving result of experiment {exp_name} to {os.path.join(args.result_path, f'model_{args.model}_{exp_name}_queryminsize.{args.min_utterances_for_query}.json')}"
+            f"Saving result of experiment {exp_name} to {os.path.join(args.result_path, f'{args.experiment_name}_{exp_name}_queryminsize.{args.min_utterances_for_query}.json')}"
         )
         with open(
             os.path.join(
                 args.result_path,
-                f"model_{args.model}_{exp_name}_queryminsize.{args.min_utterances_for_query}.json",
+                f"{args.experiment_name}_{exp_name}_queryminsize.{args.min_utterances_for_query}.json",
             ),
             "w",
         ) as f:

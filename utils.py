@@ -5,28 +5,11 @@ from transformers import (
     AutoModelForSequenceClassification,
     AutoModel,
 )
-from huggingface_transformer import Transformer
 import tqdm
 import torch
 import torch.nn.functional as F
 import numpy as np
 
-PATH_TO_CKPT = "/data/gmichel/saved_models/drama_luar.ckpt"
-
-config = {
-    "embedding_size":1024,
-    "model_name" : "sentence-transformers/all-mpnet-base-v2", 
-    "gradient_checkpointing": False
-    }
-class ModelArgument : 
-    embedding_size = 1024
-    model_name = "sentence-transformers/all-mpnet-base-v2"
-    gradient_checkpointing = False
-    def __init__(self, config) : 
-        for key,val in config.items() :
-            if hasattr(self, key) :
-                setattr(self, key, val)         
-model_args = ModelArgument(config)
 
 def stat_with_nones(l, stat="mean"):
     if stat == "mean":
@@ -54,8 +37,16 @@ def luar_tokenize(tokenizer, quotes, batch_first=False, max_length=64):
     return tokens
 
 
-def get_model(model_name, path_to_ckpt = None):
-    if model_name == "semantics":
+def get_model(model_name, is_hgface=False):
+    if is_hgface : 
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_name, trust_remote_code=True
+        )
+        model = AutoModel.from_pretrained(
+            model_name, trust_remote_code=True
+        )
+        return model, tokenizer
+    elif model_name == "semantics":
         model = SentenceTransformer("sentence-transformers/all-mpnet-base-v2")
         model.max_seq_length = 64
         return model, None
@@ -70,6 +61,7 @@ def get_model(model_name, path_to_ckpt = None):
             "SamLowe/roberta-base-go_emotions", config=config
         )
         return model, tokenizer
+    
     elif model_name == "luar":
         tokenizer = AutoTokenizer.from_pretrained(
             "rrivera1849/LUAR-MUD", trust_remote_code=True
@@ -77,19 +69,31 @@ def get_model(model_name, path_to_ckpt = None):
         model = AutoModel.from_pretrained(
             "rrivera1849/LUAR-MUD", trust_remote_code=True
         )
+        # tokenizer = AutoTokenizer.from_pretrained(
+        #     "rrivera1849/LUAR-CRUD", trust_remote_code=True
+        # )
+        # model = AutoModel.from_pretrained(
+        #     "rrivera1849/LUAR-CRUD", trust_remote_code=True
+        # )
         return model, tokenizer
     
-    elif model_name == "drama_luar":
-        model = Transformer(model_args)
-        tokenizer = AutoTokenizer.from_pretrained(model_args.model_name)
-        if path_to_ckpt is not None : 
-            state_dict=torch.load(path_to_ckpt)
-            model.load_state_dict(state_dict["state_dict"])
-        model.eval()
+    elif model_name == "uar_scene":
+        tokenizer = AutoTokenizer.from_pretrained(
+            "gasmichel/UAR_scene", trust_remote_code=True
+        )
+        model = AutoModel.from_pretrained(
+            "gasmichel/UAR_scene", trust_remote_code=True
+        )
         return model, tokenizer
+    elif model_name == "uar_play" : 
+        tokenizer = AutoTokenizer.from_pretrained(
+            "gasmichel/UAR_Play", trust_remote_code=True
+        )
+        model = AutoModel.from_pretrained(
+            "gasmichel/UAR_Play", trust_remote_code=True
+        )
     else:
-        raise ValueError("Model must be one of semantics, stel, emotions or luar")
-
+        raise ValueError("Model must be one of semantics, stel, emotions, luar, uar_scene or uar_play")
 
 def process_quotes(quotes, model_name, model, tokenizer):
     if model_name in ["stel", "semantics"]:
@@ -119,7 +123,7 @@ def process_quotes(quotes, model_name, model, tokenizer):
                         novel_quotes[idx : idx + batch_size],
                         return_tensors="pt",
                         truncation=True,
-                        max_length=128,
+                        max_length=64,
                         padding=True,
                     )
                     u = model(
